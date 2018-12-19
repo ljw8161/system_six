@@ -5,12 +5,15 @@
 #include <sys/socket.h>
 #include <sys/file.h>
 #include <netinet/in.h>
+#include <string.h>
+#include <unistd.h>
 
 #define MAXLINE 1024
 #define MAXSOCK 512
 
 char *escapechar = "exit\n";
 int readline(int, char *, int);
+int exitCheck(char *, char *, int);
 
 int main(int argc, char *argv[])
 {
@@ -22,7 +25,7 @@ int main(int argc, char *argv[])
 	fd_set read_fds;	//socknum struct to detect read
 	int num_chat = 0;	//client num
 	int client_s[MAXSOCK];
-	struct sockaddr_in clinet_addr, server_addr;
+	struct sockaddr_in client_addr, server_addr;
 
 	if(argc<2)
 	{
@@ -61,14 +64,14 @@ int main(int argc, char *argv[])
 	while(1)
 	{
 		//renewal max socknum + 1
-		if((num_chat - 1)>=0) nfds = clinet_s[num_chat-1]+1;
+		if((num_chat - 1)>=0) nfds = client_s[num_chat-1]+1;
 
 		//socketnum which detect read change -> save fd_set struct
 		FD_SET(s, &read_fds);
-		for(i=0;i<num_chat;i++) FD_SET(clienet_s[i], &read_fds);
+		for(i=0;i<num_chat;i++) FD_SET(client_s[i], &read_fds);
 
 		//call select()
-		if(select(nfds, &read_fds, (fd_set *)0, (fd_seet *)0, (struct timeval) *0) < 0)
+		if(select(nfds, &read_fds, (fd_set *)0, (fd_set *)0, (struct timeval *) 0) < 0)
 		{
 			printf("select error\n");
 			return -1;
