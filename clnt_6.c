@@ -4,6 +4,9 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <sys/time.h>
+#include <string.h>
+#include <unistd.h>
+#include <arpa/inet.h>
 
 #define MAXLINE 1024
 #define MAXSOCK 512
@@ -17,7 +20,7 @@ struct Name{
 	int len;
 } name;
 
-int main(int argc, car *argv[])
+int main(int argc, char *argv[])
 {
 	char line[MAXLINE], sendline[MAXLINE+1];
 	int n, pid, size;
@@ -87,10 +90,10 @@ int main(int argc, car *argv[])
 			if(readline(0, sendline, MAXLINE) > 0)
 			{
 				size = strlen(sendline);
-				sprintf(line, "%s %s", name.n sendline);
+				sprintf(line, "%s %s", name.n, sendline);
 				if(send(s, line, size + name.len, 0) != (size+name.len))
 					printf("Error : Written error on socket.\n");
-				if(size == 5 &&strncmp(sendline, escapechar, 5) == 0)
+				if(size == 5 && strncmp(sendline, escapechar, 5) == 0)
 				{
 					printf("Good bye.\n");
 					close(s);
