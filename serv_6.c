@@ -19,6 +19,7 @@ struct Name
 {
 	char name[20];
 	int client_s;
+	int filter_cnt;
 };
 
 struct Name client[MAXSOCK];
@@ -33,6 +34,7 @@ int main(int argc, char *argv[])
 	fd_set read_fds;	//socknum struct to detect read
 	int num_chat = 0;	//client num
 	struct sockaddr_in client_addr, server_addr;
+	char *ptr;
 
 	if(argc < 2)
 	{
@@ -71,7 +73,7 @@ int main(int argc, char *argv[])
 	while(1)
 	{
 		//renewal max socknum + 1
-		if((num_chat - 1)>=0) nfds = client[num_chat-1].client_s + 1;
+		if((num_chat - 1) >= 0) nfds = client[num_chat-1].client_s + 1;
 
 		//socketnum which detect read change -> save fd_set struct
 		FD_SET(s, &read_fds);
@@ -111,10 +113,26 @@ int main(int argc, char *argv[])
 					//input exit -> exit
 					if(exitCheck(rline, escapechar, 5) == 1)
 					{
-						shutdown(client[i].client_s, 2);
-						if(i != num_chat - 1) client[i].client_s = client[num_chat-1].client_s;
+						//shutdown(client[i].client_s, 2);
+						printf("%s exit\n", client[i].name);
+						if(i != num_chat - 1) 
+						{
+							client[i].client_s = client[num_chat-1].client_s;
+							strcpy(client[i].name, client[num_chat - 1].name);
+						}
 						num_chat--;
 						continue;
+					}
+
+					if(client[i].filter_cnt == 5)
+					{
+						shutdown(client[i].client_s, 2);
+						if(i != num_chat - 1) 
+						{
+							client[i].client_s = client[num_chat-1].client_s;
+							strcpy(client[i].name, client[num_chat - 1].name);
+						}
+						num_chat--;
 					}
 					//sent msg to everyone
 					for(j = 0; j < num_chat; j++) 
@@ -170,3 +188,4 @@ int readline(int fd, char *ptr, int maxlen)
 	*ptr = 0;
 	return n;
 }
+
