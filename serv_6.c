@@ -15,6 +15,14 @@ char *escapechar = "exit\n";
 int readline(int, char *, int);
 int exitCheck(char *, char *, int);
 
+struct Name
+{
+	char name[20];
+	int client_s;
+};
+
+struct Name client[MAXSOCK];
+
 int main(int argc, char *argv[])
 {
 	char rline[MAXLINE], my_msg[MAXLINE];
@@ -24,10 +32,9 @@ int main(int argc, char *argv[])
 	int nfds;	//max socket num + 1
 	fd_set read_fds;	//socknum struct to detect read
 	int num_chat = 0;	//client num
-	int client_s[MAXSOCK];
 	struct sockaddr_in client_addr, server_addr;
 
-	if(argc<2)
+	if(argc < 2)
 	{
 		printf("Input : %s portnum\n", argv[0]);
 		return -1;
@@ -48,14 +55,14 @@ int main(int argc, char *argv[])
 	server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 	server_addr.sin_port = htons(atoi(argv[1]));
 
-	if(bind(s,(struct sockaddr *)&server_addr, sizeof(server_addr))<0)
+	if(bind(s,(struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
 	{
 		printf("Server : Can't bind local address.\n");
 		return -1;
 	}
 
 	//Waiting for clnt's connect request
-	listen(s,5);
+	listen(s, 5);
 
 	//Max socknum + 1
 	nfds = s + 1;
@@ -64,11 +71,11 @@ int main(int argc, char *argv[])
 	while(1)
 	{
 		//renewal max socknum + 1
-		if((num_chat - 1)>=0) nfds = client_s[num_chat-1]+1;
+		if((num_chat - 1)>=0) nfds = client[num_chat-1].client_s + 1;
 
 		//socketnum which detect read change -> save fd_set struct
 		FD_SET(s, &read_fds);
-		for(i=0;i<num_chat;i++) FD_SET(client_s[i], &read_fds);
+		for(i = 0;i < num_chat;i++) FD_SET(client[i].client_s, &read_fds);
 
 		//call select()
 		if(select(nfds, &read_fds, (fd_set *)0, (fd_set *)0, (struct timeval *) 0) < 0)
@@ -85,7 +92,7 @@ int main(int argc, char *argv[])
 			if(client_fd != -1)
 			{
 				//add list of chat clnt
-				client_s[num_chat] = client_fd;
+				client[num_chat].client_s = client_fd;
 				num_chat++;
 				send(client_fd, start, strlen(start), 0);
 				printf("New person!  Total %d people in this chat serv.\n", num_chat);
@@ -94,20 +101,20 @@ int main(int argc, char *argv[])
 		//sent msg to everyone. The msg is sent by someone
 		for(i=0;i<num_chat;i++)
 		{
-			if(FD_ISSET(client_s[i], &read_fds))
+			if(FD_ISSET(client[i].client_s, &read_fds))
 			{
-				if((n = recv(client_s[i], rline, MAXLINE, 0)) > 0 )
+				if((n = recv(client[i].client_S, rline, MAXLINE, 0)) > 0 )
 				{
 					//input exit -> exit
 					if(exitCheck(rline, escapechar, 5) == 1)
 					{
-						shutdown(client_s[i], 2);
-						if(i != num_chat - 1) client_s[i] = client_s[num_chat-1];
+						shutdown(client[i].client_s, 2);
+						if(i != num_chat - 1) client[i].client_s = client[num_chat-1].client_s;
 						num_chat--;
 						continue;
 					}
 					//sent msg to everyone
-					for(j = 0; j < num_chat; j++) send(client_s[j], rline, n, 0);
+					for(j = 0; j < num_chat; j++) send(client[j].client_S, rline, n, 0);
 					printf("%s", rline);
 				}
 			}
