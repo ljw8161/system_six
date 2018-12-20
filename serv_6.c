@@ -98,6 +98,8 @@ int main(int argc, char *argv[])
 				printf("New person!  Total %d people in this chat serv.\n", num_chat);
 			}
 		}
+
+		memset(rline, 0, sizeof(rline));
 		//sent msg to everyone. The msg is sent by someone
 		for(i=0;i<num_chat;i++)
 		{
@@ -105,6 +107,7 @@ int main(int argc, char *argv[])
 			{
 				if((n = recv(client[i].client_s, rline, MAXLINE, 0)) > 0 )
 				{
+					rline[n] = '\0';
 					//input exit -> exit
 					if(exitCheck(rline, escapechar, 5) == 1)
 					{
@@ -114,8 +117,13 @@ int main(int argc, char *argv[])
 						continue;
 					}
 					//sent msg to everyone
-					for(j = 0; j < num_chat; j++) send(client[j].client_s, rline, n, 0);
-					printf("%s", rline);
+					for(j = 0; j < num_chat; j++) 
+					{
+						if(j != i)
+							send(client[j].client_s, rline, n, 0);
+					}
+					printf("%s\n", rline);
+					fflush(stdin);
 				}
 			}
 		}
@@ -144,7 +152,7 @@ int exitCheck(char *rline, char *escapechar, int len)
 
 int readline(int fd, char *ptr, int maxlen)
 {
-	int n,rc;
+	int n, rc;
 	char c;
 	for(n = 1; n < maxlen; n++)
 	{
@@ -162,4 +170,3 @@ int readline(int fd, char *ptr, int maxlen)
 	*ptr = 0;
 	return n;
 }
-
