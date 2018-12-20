@@ -18,6 +18,7 @@ int s;
 struct Name{
 	char n[20];
 	int len;
+	int filter_cnt;
 } name;
 
 void filtering(char *, char *, char *, char *);
@@ -32,6 +33,7 @@ int main(int argc, char *argv[])
 
 	int cnt = 0;
 	char msg_name[30] = "name: ";
+	name.filter_cnt = 0;
 
 	char *ptr = NULL;
 
@@ -65,7 +67,6 @@ int main(int argc, char *argv[])
 		printf("Client : Can't connet to server.\n");
 		return -1;
 	}
-	else printf("Welcome to chat server!\n");
 
 	nfds = s + 1;
 	FD_ZERO(&read_fds);
@@ -98,6 +99,8 @@ int main(int argc, char *argv[])
 			cnt++;
 		}
 
+		
+
 		//input from keyboard
 		if(FD_ISSET(0, &read_fds))
 		{
@@ -115,6 +118,13 @@ int main(int argc, char *argv[])
 					filtering(ptr, sendline, "SIBAL", "XXXXX");
 				else if ((ptr = strstr(sendline, "sibal")) != NULL)
 					filtering(ptr, sendline, "sibal", "xxxxx");
+				
+				if(name.filter_cnt == 5)
+				{
+					printf("Don't use bad word!\nGood bye.\n");
+					close(s);
+					return -1;
+				}
 
 				size = strlen(sendline);
 				sprintf(line, "%s %s", name.n, sendline);
@@ -158,6 +168,8 @@ void filtering(char *ptr, char *line, char *original, char *filter)
 	char result[MAXLINE];
 	char *start;
 	
+	name.filter_cnt++;
+
 	memset(result, 0, sizeof(result));
 
 	if (ptr != line)
@@ -170,3 +182,4 @@ void filtering(char *ptr, char *line, char *original, char *filter)
 
 	strcpy(line, result);
 }
+
