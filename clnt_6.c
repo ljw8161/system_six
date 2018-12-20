@@ -30,7 +30,6 @@ int main(int argc, char *argv[])
 
 	int cnt = 0;
 	char msg_name[30] = "name: ";
-	name clnt_name;
 	
 	if(argc<4)
 	{
