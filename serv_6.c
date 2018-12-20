@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
 		{
 			if(FD_ISSET(client[i].client_s, &read_fds))
 			{
-				if((n = recv(client[i].client_S, rline, MAXLINE, 0)) > 0 )
+				if((n = recv(client[i].client_s, rline, MAXLINE, 0)) > 0 )
 				{
 					//input exit -> exit
 					if(exitCheck(rline, escapechar, 5) == 1)
@@ -114,7 +114,7 @@ int main(int argc, char *argv[])
 						continue;
 					}
 					//sent msg to everyone
-					for(j = 0; j < num_chat; j++) send(client[j].client_S, rline, n, 0);
+					for(j = 0; j < num_chat; j++) send(client[j].client_s, rline, n, 0);
 					printf("%s", rline);
 				}
 			}
