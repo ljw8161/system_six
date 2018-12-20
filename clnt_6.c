@@ -20,6 +20,8 @@ struct Name{
 	int len;
 } name;
 
+void filtering(char *, char *, char *, char *);
+
 int main(int argc, char *argv[])
 {
 	char line[MAXLINE], sendline[MAXLINE+1];
@@ -31,7 +33,7 @@ int main(int argc, char *argv[])
 	int cnt = 0;
 	char msg_name[30] = "name: ";
 	
-	if(argc<4)
+	if(argc < 4)
 	{
 		printf("correct input : %s host ip address portnum username \n", argv[0]);
 		return -1;
@@ -99,6 +101,19 @@ int main(int argc, char *argv[])
 		{
 			if(readline(0, sendline, MAXLINE) > 0)
 			{
+				if ((ptr = strstr(sendline, "FUCK")) != NULL)
+					filtering(ptr, sendline, "FUCK", "XXXX");
+				else if ((ptr = strstr(sendline, "fuck")) != NULL)
+					filtering(ptr, sendline, "fuck", "xxxx");
+				else if ((ptr = strstr(sendline, "WTF")) != NULL)
+					filtering(ptr, sendline, "WTF", "XXX");
+				else if ((ptr = strstr(sendline, "wtf")) != NULL)
+					filtering(ptr, sendline, "wtf", "xxx");
+				else if ((ptr = strstr(sendline, "SIBAL")) != NULL)
+					filtering(ptr, sendline, "SIBAL", "XXXXX");
+				else if ((ptr = strstr(sendline, "sibal")) != NULL)
+					filtering(ptr, sendline, "sibal", "xxxxx");
+				
 				size = strlen(sendline);
 				sprintf(line, "%s %s", name.n, sendline);
 				if(send(s, line, size + name.len, 0) != (size+name.len))
@@ -134,4 +149,22 @@ int readline(int fd, char *ptr, int maxlen)
 	}
 	*ptr = 0;
 	return(n);
+}
+
+void filtering(char *ptr, char *line, char *original, char *filter)
+{
+	char result[MAXLINE];
+	char *start;
+	
+	memset(result, 0, sizeof(result));
+	
+	if(ptr != line)
+		strncpy(result, line, strlen(line) - strlen(ptr));
+	
+	strcat(result, filter);
+	
+	start = ptr + strlen(original);
+	strcat(result, start);
+	
+	strcpy(line, result);
 }
