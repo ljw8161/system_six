@@ -28,12 +28,17 @@ int main(int argc, char *argv[])
 	int nfds;
 	fd_set read_fds;
 
+	int cnt = 0;
+	char msg_name[30] = "name: ";
+	name clnt_name;
+	
 	if(argc<4)
 	{
 		printf("correct input : %s host ip address portnum username \n", argv[0]);
 		return -1;
 	}
 
+	sprintf(msg_name, "%s%s", msg_name, argv[3]);
 	//reset chat user name struct
 	sprintf(name.n, "[%s]", argv[3]);
 	name.len = strlen(name.n);
@@ -82,6 +87,12 @@ int main(int argc, char *argv[])
 				recvline[size] = '\0';
 				printf("%s \n", recvline);
 			}
+		}
+		
+		if(cnt == 0)
+		{
+			send(s, msg_name, strlen(msg_name), 0);
+			cnt++;
 		}
 
 		//input from keyboard
