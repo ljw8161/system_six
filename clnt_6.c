@@ -32,8 +32,10 @@ int main(int argc, char *argv[])
 
 	int cnt = 0;
 	char msg_name[30] = "name: ";
-	
-	if(argc < 4)
+
+	char *ptr = NULL;
+
+	if(argc<4)
 	{
 		printf("correct input : %s host ip address portnum username \n", argv[0]);
 		return -1;
@@ -89,8 +91,8 @@ int main(int argc, char *argv[])
 				printf("%s \n", recvline);
 			}
 		}
-		
-		if(cnt == 0)
+
+		if (cnt == 0)
 		{
 			send(s, msg_name, strlen(msg_name), 0);
 			cnt++;
@@ -113,10 +115,10 @@ int main(int argc, char *argv[])
 					filtering(ptr, sendline, "SIBAL", "XXXXX");
 				else if ((ptr = strstr(sendline, "sibal")) != NULL)
 					filtering(ptr, sendline, "sibal", "xxxxx");
-				
+
 				size = strlen(sendline);
 				sprintf(line, "%s %s", name.n, sendline);
-				if(send(s, line, size + name.len, 0) != (size+name.len))
+				if(send(s, line, size + name.len, 0) != (size + name.len))
 					printf("Error : Written error on socket.\n");
 				if(size == 5 && strncmp(sendline, escapechar, 5) == 0)
 				{
@@ -157,14 +159,14 @@ void filtering(char *ptr, char *line, char *original, char *filter)
 	char *start;
 	
 	memset(result, 0, sizeof(result));
-	
-	if(ptr != line)
+
+	if (ptr != line)
 		strncpy(result, line, strlen(line) - strlen(ptr));
-	
+
 	strcat(result, filter);
-	
+
 	start = ptr + strlen(original);
 	strcat(result, start);
-	
+
 	strcpy(line, result);
 }
